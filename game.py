@@ -10,6 +10,8 @@ window_height = 0.85*monitor_height
 pygame.display.set_caption("game")
 window = pygame.display.set_mode((window_width, window_height))
 
+clock = pygame.time.Clock()
+
 
 def draw_rect():
     pygame.draw.rect(window, "red", rect)
@@ -61,7 +63,7 @@ def level_1():
 def main():
     run = True
     while run:
-
+        clock.tick(60)
         ui()
         draw_rect()
         pygame.display.update()
