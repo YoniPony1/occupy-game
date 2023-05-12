@@ -1,5 +1,4 @@
 import pygame
-import button
 
 pygame.init()
 
@@ -51,15 +50,18 @@ class Game():
         self.backgroung = pygame.transform.scale(pygame.image.load("Background.png"),(self.window_width, self.window_height))
         self.img = pygame.image.load("orange_button.png")
 
+
+
         # pages vars
         self.main_menu = True
         self.board = False
 
 
     def draw_board(self):
+
         # inside
-        inside_width = round(0.8*self.window_width/20)*20  # make sure it's divided by 20
-        inside_height = 0.7*inside_width
+        inside_width = round(0.8*self.window_width/25)*25  # make sure it's divided by 20
+        inside_height = 0.68*inside_width
         inside_x, inside_y = (self.window_width-inside_width)/2, 0.35*(self.window_height-inside_height)
         inside = pygame.Rect(inside_x, inside_y, inside_width, inside_height)
         pygame.draw.rect(self.window, "white", inside)
@@ -76,19 +78,23 @@ class Game():
         # guide lines
         #-------------
         color = "blue"
-        gap = inside_width/20
+        gap = inside_width/25
         # vertical lines
-        for i in range(1, 21):
+        for i in range(1, 26):
             pygame.draw.line(self.window, color, (inside_x-1+gap*i, inside_y), (inside_x-1+gap*i, inside_y_end))
         # horizontal lines
-        for j in range(1, 15):
+        for j in range(1, 18):
             pygame.draw.line(self.window, color, (inside_x, inside_y-1+gap*j), (inside_x_end, inside_y-1+gap*j))
         pygame.draw.line(self.window, color, (inside_x-1, inside_y-1), (inside_x_end, inside_y-1))
         pygame.draw.line(self.window, color, (inside_x-1, inside_y-1), (inside_x-1, inside_y_end))
 
+        # background
+        board_background = pygame.transform.scale(pygame.image.load("pattern2_21x17.png"), (inside_width - 2 * gap, inside_height - 2 * gap))
+        self.window.blit(board_background, (inside_x + gap, inside_y + gap))
+
         #rect
         if not self.rect_drawn:  # checks if it the first time
-            self.rect = pygame.Rect(inside_x_end - gap + 1, inside_y_end - gap + 1, gap - 1, gap - 1)
+            self.rect = pygame.Rect(inside_x+12*gap, inside_y_end - gap + 1, gap - 1, gap - 1)
             self.rect_drawn = True
         pygame.draw.rect(self.window, "red", self.rect)
 
