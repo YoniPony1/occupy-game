@@ -39,8 +39,6 @@ class Game():
         pygame.display.set_caption("game")
         self.window = pygame.display.set_mode((self.window_width, self.window_height))
 
-        self.rect_drawn = False
-
         # timer
         self.clock = pygame.time.Clock()
         # fonts
@@ -48,75 +46,81 @@ class Game():
         self.small_font = pygame.font.SysFont("Ariel", 40)
         # images
         self.backgroung = pygame.transform.scale(pygame.image.load("Background.png"),(self.window_width, self.window_height))
-        self.img = pygame.image.load("orange_button.png")
+        self.button = pygame.image.load("orange_button.png")
 
 
-
+        # vars
+        self.rect_drawn = False
+        self.in_field = False
         # pages vars
         self.main_menu = True
-        self.board = False
+        self.game = False
 
 
     def draw_board(self):
-
-        # inside
-        inside_width = round(0.8*self.window_width/25)*25  # make sure it's divided by 20
-        inside_height = 0.68*inside_width
-        inside_x, inside_y = (self.window_width-inside_width)/2, 0.35*(self.window_height-inside_height)
-        inside = pygame.Rect(inside_x, inside_y, inside_width, inside_height)
-        pygame.draw.rect(self.window, "white", inside)
-        inside_x_end, inside_y_end = inside_x+inside_width-1, inside_y+inside_height-1
+        # board
+        board_width = round(0.8*self.window_width/25)*25  # make sure it's divided by 20
+        board_height = 0.68*board_width
+        board_x, board_y = (self.window_width-board_width)/2, 0.35*(self.window_height-board_height)
+        board = pygame.Rect(board_x, board_y, board_width, board_height)
+        pygame.draw.rect(self.window, "#4a1486", board)
+        board_x_end, board_y_end = board_x+board_width-1, board_y+board_height-1
 
         # outline
         outline_thick = 5
-        outline_width = inside_width+outline_thick*2+1
-        outline_height = inside_height+outline_thick*2+1
-        outline_pos = (inside_x-1-outline_thick, inside_y-1-outline_thick)
+        outline_width = board_width+outline_thick*2+1
+        outline_height = board_height+outline_thick*2+1
+        outline_pos = (board_x-1-outline_thick, board_y-1-outline_thick)
         outline = pygame.Rect(outline_pos[0], outline_pos[1], outline_width, outline_height)
-        pygame.draw.rect(self.window, "green", outline, outline_thick, 5)
+        pygame.draw.rect(self.window, "black", outline, outline_thick, 5)
 
         # guide lines
         #-------------
         color = "blue"
-        gap = inside_width/25
+        gap = board_width/25
         # vertical lines
         for i in range(1, 26):
-            pygame.draw.line(self.window, color, (inside_x-1+gap*i, inside_y), (inside_x-1+gap*i, inside_y_end))
+            pygame.draw.line(self.window, color, (board_x-1+gap*i, board_y), (board_x-1+gap*i, board_y_end))
         # horizontal lines
         for j in range(1, 18):
-            pygame.draw.line(self.window, color, (inside_x, inside_y-1+gap*j), (inside_x_end, inside_y-1+gap*j))
-        pygame.draw.line(self.window, color, (inside_x-1, inside_y-1), (inside_x_end, inside_y-1))
-        pygame.draw.line(self.window, color, (inside_x-1, inside_y-1), (inside_x-1, inside_y_end))
+            pygame.draw.line(self.window, color, (board_x, board_y-1+gap*j), (board_x_end, board_y-1+gap*j))
+        pygame.draw.line(self.window, color, (board_x-1, board_y-1), (board_x_end, board_y-1))
+        pygame.draw.line(self.window, color, (board_x-1, board_y-1), (board_x-1, board_y_end))
 
         # background
-        board_background = pygame.transform.scale(pygame.image.load("pattern2_21x17.png"), (inside_width - 2 * gap, inside_height - 2 * gap))
-        self.window.blit(board_background, (inside_x + gap, inside_y + gap))
+        board_background = pygame.transform.scale(pygame.image.load("pattern2_21x17.png"), (board_width - 2 * gap-1, board_height - 2 * gap-1))
+        self.window.blit(board_background, (board_x + gap, board_y + gap))
 
-        #rect
-        if not self.rect_drawn:  # checks if it the first time
-            self.rect = pygame.Rect(inside_x+12*gap, inside_y_end - gap + 1, gap - 1, gap - 1)
+        #player
+        if not self.rect_drawn:  # checks if it the first time its drawn
+            #self.rect = pygame.Rect(board_x+12*gap, board_y_end - gap + 1, gap - 1, gap - 1)
+            self.player = pygame.transform.scale(pygame.image.load("ball3.png"), (gap-1, gap-1))
+            self.rect = self.player.get_rect()
+            self.rect.topleft = (board_x+12*gap, board_y_end - gap + 1)
             self.rect_drawn = True
-        pygame.draw.rect(self.window, "red", self.rect)
+        self.window.blit(self.player, self.rect)
 
         #button
-        button_1 = Button("Back", "white", self.small_font, self.window_width/2 , 0.945*self.window_height, self.img, 200, 60)
+        button_1 = Button("Back", "white", self.small_font, self.window_width/2 , 0.936*self.window_height, self.button, 200, 60)
         button_1.draw()
         if button_1.clicked():
             self.main_menu = True
-            self.board = False
+            self.game = False
 
 
     def draw_main_menu(self):
-        play_btn = Button("Play", "white",self.big_font, self.window_width/2, 0.35*self.window_height, self.img, 380, 100)
+        play_btn = Button("Play", "white",self.big_font, self.window_width/2, 0.35*self.window_height, self.button, 380, 100)
         play_btn.draw()
         if play_btn.clicked():
             self.main_menu = False
-            self.board = True
+            self.game = True
 
 
     def main_loop(self):
         run = True
         while run:
+            velocity = 10
+
             #clock
             self.clock.tick(60)
 
@@ -130,20 +134,32 @@ class Game():
 
             #key inputs
             keys = pygame.key.get_pressed()
-            if keys[pygame.K_LEFT]:
-                self.rect.x -= 5
-            if keys[pygame.K_RIGHT]:
-                self.rect.x += 5
-            if keys[pygame.K_UP]:
-                self.rect.y -= 5
-            if keys[pygame.K_DOWN]:
-                self.rect.y += 5
+            if self.game:  # only when in game
+                # arrow keys input
+                if any((keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN])):
+                    if keys[pygame.K_LEFT]:
+                        direction = (-1, 0)
+                    if keys[pygame.K_RIGHT]:
+                        direction = (1, 0)
+                    if keys[pygame.K_UP]:
+                        direction = (0, -1)
+                    if keys[pygame.K_DOWN]:
+                        direction = (0, 1)
+
+                    if self.in_field:
+                        #mvement in the field
+                        print(1)
+                    else:
+                        #movement in occupied area
+                        print(0)
+                        player_des = 0
+
+
 
             #event handler
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-
 
 
 game = Game()
