@@ -60,10 +60,13 @@ class Game():
         # vars
         self.board_area = []
         self.player_drawn = False
+        self.field_init = False
         self.p_velocity = 0.2*round(0.8*self.max_width/25)
         self.in_field = False
         self.field = []
         self.points = []
+        self.direction = (0, 0)
+        self.fixed_direction = (0, 0)
         # pages vars
         self.main_menu = True
         self.game = False
@@ -86,6 +89,8 @@ class Game():
         outline = pygame.Rect(outline_pos[0], outline_pos[1], outline_width, outline_height)
         pygame.draw.rect(self.window, "black", outline, outline_thick, 5)
 
+        
+
         # guide lines
         # -------------
         color = "white"
@@ -103,7 +108,9 @@ class Game():
         # field
         field_background = pygame.transform.scale(pygame.image.load("pattern2_21x17.png"), (board_width - 2 * gap-1, board_height - 2 * gap-1))
         self.window.blit(field_background, (board_x + gap, board_y + gap))
-        self.field.append((board_x + gap, board_y + gap, board_x + board_width - gap - 2, board_y + board_height - gap - 2))
+        if not self.field_init:
+            self.field.append((board_x + gap, board_y + gap, board_x + board_width - gap - 2, board_y + board_height - gap - 2))
+            self.field_init = True
 
         # player
         if not self.player_drawn:  # checks if it is the first time its drawn
@@ -114,18 +121,18 @@ class Game():
         self.window.blit(self.player, self.player_rect)
         pygame.draw.rect(self.window, "red", self.player_rect, 1)
 
-        # button
+        # back button
         button_1 = Button("Back", "white", self.small_font, 0.5*self.max_width+self.max_width_start, board_y+1.09*outline_height, self.button, 0.2*outline_height, 0.06*outline_height)
         button_1.draw()
         if button_1.clicked():
             self.main_menu = True
             self.game = False
-            # reset
+            # reset vars
             self.player_drawn = False
             self.in_field = False
-
-        #print(f"board_x: {board_x}, player_x: {self.player_rect.x}")
-        #print(f"board_y: {board_y}, player_y: {self.player_rect.y}")
+            self.field = []
+            self.points = []
+            self.field_init = False
 
     def draw_main_menu(self):
         play_btn = Button("Play", "white", self.big_font, 0.5*self.max_width+self.max_width_start, 0.35*self.window_height, self.button, 0.212*self.max_width, 0.055*self.max_width)
@@ -134,18 +141,22 @@ class Game():
             self.main_menu = False
             self.game = True
 
-    def arrow_key_pressed(self, last_direction, direction):
-        direction = direction
+    def arrow_key_pressed(self):
         if self.in_field:
-            # changed direction
-            # adds point
-            point = (0,0)
-            self.points.append(point)
-            print("changed direction")
+            # player inside field
+            # -------------------
+            # check if change direction
+            if self.direction != self.fixed_direction:
+                point = (self.player_rect.x, self.player_rect.y)
+                # adds point
+                self.points.append(point)
+                self.fixed_direction = self.direction
+                print("changed direction")
         else:
-            # movement in occupied area
-            player_des_x = self.player_rect.x + self.p_velocity * direction[0]
-            player_des_y = self.player_rect.y + self.p_velocity * direction[1]
+            # player outside field
+            # --------------------
+            player_des_x = self.player_rect.x + self.p_velocity * self.direction[0]
+            player_des_y = self.player_rect.y + self.p_velocity * self.direction[1]
             # limits to the board area
             if player_des_x > (self.board_area[2] - self.player_rect[2]):
                 player_des_x = (self.board_area[2] - self.player_rect[2])
@@ -156,11 +167,12 @@ class Game():
             elif player_des_y < self.board_area[1]:
                 player_des_y = self.board_area[1]
 
-            # check if player_des in field
+            # check if player destination is in field
             for area in self.field:
-                if area[2] >= player_des_x >= (area[0] - self.player_rect[2]) and area[3] >= player_des_y >= (
-                        area[1] - self.player_rect[3]):
+                if area[2] >= player_des_x >= (area[0] - self.player_rect[2]) and \
+                        area[3] >= player_des_y >= (area[1] - self.player_rect[3]):
                     self.in_field = True
+                    self.fixed_direction = self.direction
                     # adds start point
                     point = (self.player_rect.x, self.player_rect.y)
                     self.points.append(point)
@@ -169,16 +181,16 @@ class Game():
             self.player_rect.x = player_des_x
             self.player_rect.y = player_des_y
 
-    def in_field_move(self, direction):
-        player_des_x = self.player_rect.x + self.p_velocity * direction[0]
-        player_des_y = self.player_rect.y + self.p_velocity * direction[1]
-        # check if player_des in field
+    def in_field_move(self):
+        # calculate player destination
+        player_des_x = self.player_rect.x + self.p_velocity * self.fixed_direction[0]
+        player_des_y = self.player_rect.y + self.p_velocity * self.fixed_direction[1]
+        # if in field
         in_area = []
-        for area in self.field:
-            if area[2] >= self.player_rect.x >= (area[0] - self.player_rect[2]) and area[3] >= self.player_rect.y >= (
-                    area[1] - self.player_rect[3]):
+        for area in self.field:  # checks if player in field
+            if area[2] >= self.player_rect.x >= (area[0] - self.player_rect[2]) and \
+                    area[3] >= self.player_rect.y >= (area[1] - self.player_rect[3]):
                 in_area.append(True)
-                # moves player
                 # limits to the board area
                 if player_des_x > (self.board_area[2] - self.player_rect[2]):
                     player_des_x = (self.board_area[2] - self.player_rect[2])
@@ -188,6 +200,7 @@ class Game():
                     player_des_y = (self.board_area[3] - self.player_rect[3])
                 elif player_des_y < self.board_area[1]:
                     player_des_y = self.board_area[1]
+                # moves player
                 self.player_rect.x = player_des_x
                 self.player_rect.y = player_des_y
             else:
@@ -195,6 +208,15 @@ class Game():
         # if not in field
         if not all(in_area):
             self.in_field = False
+            # adds end point
+            point = (self.player_rect.x, self.player_rect.y)
+            self.points.append(point)
+            # filling the area
+
+            # reset points
+            self.points = []
+
+        print(self.points)
 
     def add_point(self, point):
         pass
@@ -202,7 +224,6 @@ class Game():
     def main_loop(self):
         run = True
         while run:
-            direction = None
             # clock
             self.clock.tick(60)
 
@@ -219,25 +240,20 @@ class Game():
                 keys = pygame.key.get_pressed()
                 if any((keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN])):
                     if keys[pygame.K_LEFT]:
-                        direction = (-1, 0)
+                        self.direction = (-1, 0)
                     elif keys[pygame.K_RIGHT]:
-                        direction = (1, 0)
+                        self.direction = (1, 0)
                     elif keys[pygame.K_UP]:
-                        direction = (0, -1)
+                        self.direction = (0, -1)
                     elif keys[pygame.K_DOWN]:
-                        direction = (0, 1)
-                    else:
-                        direction = (0, 0)
-                    self.arrow_key_pressed(last_direction, direction)
+                        self.direction = (0, 1)
+                    # calls function
+                    self.arrow_key_pressed()
 
             # field movement
             if self.game:
                 if self.in_field:
-                    #print("in_field")
-                    self.in_field_move(direction)
-                else:
-                    #print("not in field")
-                    pass
+                    self.in_field_move()
 
             # event handler
             for event in pygame.event.get():
@@ -246,9 +262,6 @@ class Game():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         run = False
-
-            if direction:
-                last_direction = direction
 
 
 game = Game()
