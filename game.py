@@ -95,15 +95,17 @@ class Game():
         # horizontal lines
         for j in range(1, 18):
             pygame.draw.line(self.window, color, (board_x, board_y-1+gap*j), (board_x_end, board_y-1+gap*j))
+        # 2 edge lines
         pygame.draw.line(self.window, color, (board_x-1, board_y-1), (board_x_end, board_y-1))
         pygame.draw.line(self.window, color, (board_x-1, board_y-1), (board_x-1, board_y_end))
 
-        # background
-        board_background = pygame.transform.scale(pygame.image.load("pattern2_21x17.png"), (board_width - 2 * gap-1, board_height - 2 * gap-1))
-        self.window.blit(board_background, (board_x + gap, board_y + gap))
+        # field
+        field_background = pygame.transform.scale(pygame.image.load("pattern2_21x17.png"), (board_width - 2 * gap-1, board_height - 2 * gap-1))
+        self.window.blit(field_background, (board_x + gap, board_y + gap))
+        self.field.append((board_x + gap, board_y + gap, board_x + board_width - gap - 2, board_y + board_height - gap - 2))
 
         # player
-        if not self.player_drawn:  # checks if it the first time its drawn
+        if not self.player_drawn:  # checks if it is the first time its drawn
             self.player = pygame.transform.scale(pygame.image.load("ball3.png"), (gap-1, gap-1))
             self.player_rect = self.player.get_rect()
             self.player_rect.topleft = (board_x+12*gap, board_y_end - gap + 1)
@@ -116,6 +118,9 @@ class Game():
         if button_1.clicked():
             self.main_menu = True
             self.game = False
+            # reset
+            self.player_drawn = False
+            self.in_field = False
 
     def draw_main_menu(self):
         play_btn = Button("Play", "white", self.big_font, 0.5*self.max_width+self.max_width_start, 0.35*self.window_height, self.button, 0.212*self.max_width, 0.055*self.max_width)
@@ -139,21 +144,18 @@ class Game():
                 self.draw_board()
             pygame.display.update()
 
-            # key inputs
-            keys = pygame.key.get_pressed()
+            #  game arrow keys input
             if self.game:  # only when in game
-                # arrow keys input
+                keys = pygame.key.get_pressed()
                 if any((keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN])):
-                    direction = (0, 0)
                     if keys[pygame.K_LEFT]:
                         direction = (-1, 0)
-                    if keys[pygame.K_RIGHT]:
+                    elif keys[pygame.K_RIGHT]:
                         direction = (1, 0)
-                    if keys[pygame.K_UP]:
+                    elif keys[pygame.K_UP]:
                         direction = (0, -1)
-                    if keys[pygame.K_DOWN]:
+                    elif keys[pygame.K_DOWN]:
                         direction = (0, 1)
-
                     if self.in_field:
                         # movement in the field
                         print(1)
@@ -161,8 +163,7 @@ class Game():
                         # movement in occupied area
                         player_des_x = self.player_rect.x+self.p_velocity*direction[0]
                         player_des_y = self.player_rect.y+self.p_velocity*direction[1]
-                        print(f"x:{player_des_x}, y:{player_des_y}")
-                        # limit to the board area
+                        # limits to the board area
                         if player_des_x > (self.board_area[2]-self.player_rect[2]):
                             player_des_x = (self.board_area[2]-self.player_rect[2])
                         elif player_des_x < self.board_area[0]:
@@ -171,9 +172,44 @@ class Game():
                             player_des_y = (self.board_area[3]-self.player_rect[3])
                         elif player_des_y < self.board_area[1]:
                             player_des_y = self.board_area[1]
+                        # check if player_des in field
+                        for area in self.field:
+                            if area[2] >= player_des_x >= (area[0]-self.player_rect[2]) and area[3] >= player_des_y >= (area[1]-self.player_rect[3]):
+                                self.in_field = True
+
                         # moves player
                         self.player_rect.x = player_des_x
                         self.player_rect.y = player_des_y
+
+                # field movement
+                if self.in_field:
+                    print("in_field")
+                    player_des_x = self.player_rect.x + self.p_velocity * direction[0]
+                    player_des_y = self.player_rect.y + self.p_velocity * direction[1]
+                    # check if player_des in field
+                    in_area = []
+                    for area in self.field:
+                        if area[2] >= self.player_rect.x >= (area[0] - self.player_rect[2]) and area[3] >= self.player_rect.y >= (area[1] - self.player_rect[3]):
+                            in_area.append(True)
+                            # moves player
+                            # limits to the board area
+                            if player_des_x > (self.board_area[2] - self.player_rect[2]):
+                                player_des_x = (self.board_area[2] - self.player_rect[2])
+                            elif player_des_x < self.board_area[0]:
+                                player_des_x = self.board_area[0]
+                            if player_des_y > (self.board_area[3] - self.player_rect[3]):
+                                player_des_y = (self.board_area[3] - self.player_rect[3])
+                            elif player_des_y < self.board_area[1]:
+                                player_des_y = self.board_area[1]
+                            self.player_rect.x = player_des_x
+                            self.player_rect.y = player_des_y
+                        else:
+                            in_area.append(False)
+                    # if not in field
+                    if not all(in_area):
+                        self.in_field = False
+                else:
+                    print("not in field")
 
             # event handler
             for event in pygame.event.get():
