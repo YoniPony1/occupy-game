@@ -30,6 +30,37 @@ class Button():
         game.window.blit(self.text, self.text_rect)
 
 
+# ball class
+class Ball():
+    def __init__(self, image, size, start_pos, direction, speed):
+        self.image = pygame.transform.scale(image, size)
+        self.image_rect = self.image.get_rect()
+        self.image_rect.center = start_pos
+        self.direction = direction
+        self.speed = speed
+
+    def draw(self):
+        game.window.blit(self.image, self.image_rect)
+
+    def move(self):
+        (x, y) = self.image_rect.center
+        dest_x, dest_y= x+self.speed*self.direction[0], y+self.speed*self.direction[1]
+        # checks if ball hits the wall
+        in_area = []
+        for area in game.field:
+            if area[2] >= dest_x >= (area[0] - self.image_rect[2]) and \
+                    area[3] >= dest_y >= (area[1] - self.image_rect[3]):
+                in_area.append(True)
+            else:
+                in_area.append(False)
+        if all(in_area):
+            self.image_rect.center = (dest_x, dest_y)
+
+
+
+
+
+
 # main game class
 class Game():
     def __init__(self):
@@ -54,8 +85,12 @@ class Game():
         self.big_font = pygame.font.SysFont("Ariel", int(0.8*0.055*self.max_width))
         self.small_font = pygame.font.SysFont("Ariel", int(0.8*0.033*self.max_width))
         # images
-        self.background = pygame.transform.scale(pygame.image.load("Background.png"), (self.window_width, self.window_height))
+        self.background = pygame.transform.scale(pygame.image.load("Background2.png"), (self.window_width, self.window_height))
         self.button = pygame.image.load("orange_button.png")
+        self.ball = pygame.image.load("ball4.png")
+
+        ball1_size = round(0.8 * self.max_width / 25) - 1
+        self.ball1 = Ball(self.ball, (ball1_size, ball1_size), (400, 400), (0.5, 1), 10)
 
         # vars
         self.board_area = []
@@ -122,9 +157,9 @@ class Game():
         pygame.draw.rect(self.window, "red", self.player_rect, 1)
 
         # back button
-        button_1 = Button("Back", "white", self.small_font, 0.5*self.max_width+self.max_width_start, board_y+1.09*outline_height, self.button, 0.2*outline_height, 0.06*outline_height)
-        button_1.draw()
-        if button_1.clicked():
+        back_button = Button("Back", "white", self.small_font, 0.5*self.max_width+self.max_width_start, board_y+1.09*outline_height, self.button, 0.2*outline_height, 0.06*outline_height)
+        back_button.draw()
+        if back_button.clicked():
             self.main_menu = True
             self.game = False
             # reset vars
@@ -145,10 +180,10 @@ class Game():
         if self.in_field:
             # player inside field
             # -------------------
-            # check if change direction
+            # check if changed direction
             if self.direction != self.fixed_direction:
-                point = (self.player_rect.x, self.player_rect.y)
                 # adds point
+                point = self.player_rect.center
                 self.points.append(point)
                 self.fixed_direction = self.direction
                 print("changed direction")
@@ -174,7 +209,7 @@ class Game():
                     self.in_field = True
                     self.fixed_direction = self.direction
                     # adds start point
-                    point = (self.player_rect.x, self.player_rect.y)
+                    point = self.player_rect.center
                     self.points.append(point)
 
             # moves player
@@ -209,17 +244,22 @@ class Game():
         if not all(in_area):
             self.in_field = False
             # adds end point
-            point = (self.player_rect.x, self.player_rect.y)
+            point = self.player_rect.center
             self.points.append(point)
             # filling the area
-
+            '''calls function to fill'''
             # reset points
             self.points = []
 
         print(self.points)
 
-    def add_point(self, point):
-        pass
+    def draw_lines(self):
+        pygame.draw.line(self.window, "white", self.player_rect.center, self.points[-1], 10)
+
+        for i in range(len(self.points)-1):
+            line = pygame.draw.line(self.window, "white", self.points[i], self.points[i+1], 10)
+            pass
+        pygame.display.update()
 
     def main_loop(self):
         run = True
@@ -233,6 +273,11 @@ class Game():
                 self.draw_main_menu()
             else:
                 self.draw_board()
+                if self.in_field:
+                    self.draw_lines()
+
+                self.ball1.draw()
+                self.ball1.move()
             pygame.display.update()
 
             #  game arrow keys input
@@ -254,6 +299,7 @@ class Game():
             if self.game:
                 if self.in_field:
                     self.in_field_move()
+
 
             # event handler
             for event in pygame.event.get():
