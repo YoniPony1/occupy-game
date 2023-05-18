@@ -44,18 +44,24 @@ class Ball():
 
     def move(self):
         (x, y) = self.image_rect.center
+        (w, h) = self.image_rect[2:4]
         dest_x, dest_y= x+self.speed*self.direction[0], y+self.speed*self.direction[1]
         # checks if ball hits the wall
         hit_down, hit_up, hit_left, hit_right = False, False, False, False
         for area in game.field:
-            if area[3] <= dest_y and area[0] <= dest_x <= area[2]:
+            if area[3] - h/2 <= dest_y and area[0] <= dest_x <= area[2]:
                 hit_down = True
-            if area[1] >= dest_y and area[0] <= dest_x <= area[2]:
+                dest_y = area[3] - h/2
+            if area[1] + h/2 >= dest_y and area[0] <= dest_x <= area[2]:
                 hit_up = True
-            if area[2] <= dest_x and area[1] <= dest_y <= area[3]:
+                dest_y = area[1] + h/2
+            if area[2] - w/2 <= dest_x and area[1] <= dest_y <= area[3]:
                 hit_right = True
-            if area[0] >= dest_x and area[1] <= dest_y <= area[3]:
+                dest_x = area[2] - w/2
+            if area[0] + w/2 >= dest_x and area[1] <= dest_y <= area[3]:
                 hit_left = True
+                dest_x = area[0] + w/2
+            text = f"dest_x: {dest_x}, edge: {area[0] + w/2}, {area[0] + w/2 >= dest_x}"
 
         if hit_down or hit_up:
             self.direction[1] *= -1
@@ -104,6 +110,7 @@ class Game():
         self.points = []
         self.direction = (0, 0)
         self.fixed_direction = (0, 0)
+        self.polygons= []
         # pages vars
         self.main_menu = True
         self.game = False
@@ -116,7 +123,7 @@ class Game():
         board = pygame.Rect(board_x, board_y, board_width, board_height)
         pygame.draw.rect(self.window, "#4a1486", board)
         board_x_end, board_y_end = board_x+board_width-1, board_y+board_height-1
-        self.board_area = [board_x, board_y, board_x+board_width-1, board_y+board_height-1]
+        self.board_area = [board_x, board_y, board_x + board_width - 1, board_y + board_height - 1]
 
         # outline
         outline_thick = round(0.0051*board_height)
@@ -125,8 +132,6 @@ class Game():
         outline_pos = (board_x-1-outline_thick, board_y-1-outline_thick)
         outline = pygame.Rect(outline_pos[0], outline_pos[1], outline_width, outline_height)
         pygame.draw.rect(self.window, "black", outline, outline_thick, 5)
-
-        
 
         # guide lines
         # -------------
@@ -164,7 +169,7 @@ class Game():
 
     def balls(self):
         ball1_size = round(0.8 * self.max_width / 25) - 1
-        if not self.ball_init:
+        if not self.ball_init:  # only when it is the first time (initiate)
             self.ball1 = Ball(self.ball, (ball1_size, ball1_size), (400, 200), [0.5, 1], 10)
             self.ball2 = Ball(self.ball, (ball1_size, ball1_size), (700, 500), [-1, -0.35], 10)
             self.ball_init = True
@@ -172,6 +177,11 @@ class Game():
         self.ball2.draw()
         self.ball1.move()
         self.ball2.move()
+
+    def draw_occupied_area(self):
+        # occupied area
+        for polygon in self.polygons:
+            pygame.draw.polygon(self.window, "#4a1486", polygon)
 
     def back_button_clicked(self):
         if self.back_button.clicked():
@@ -263,11 +273,9 @@ class Game():
             point = self.player_rect.center
             self.points.append(point)
             # filling the area
-            '''calls function to fill'''
+            self.polygons.append(self.points)
             # reset points
             self.points = []
-
-        print(self.points)
 
     def draw_lines(self):
         if self.in_field:
@@ -290,6 +298,7 @@ class Game():
                 self.draw_board()
                 self.draw_lines()
                 self.balls()
+                self.draw_occupied_area()
                 self.back_button_clicked()
             pygame.display.update()
 
@@ -312,7 +321,6 @@ class Game():
             if self.game:
                 if self.in_field:
                     self.in_field_move()
-
 
             # event handler
             for event in pygame.event.get():
