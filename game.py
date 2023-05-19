@@ -194,6 +194,7 @@ class Game():
             self.points = []
             self.field_init = False
             self.ball_init = False
+            self.polygons = []
 
     def draw_main_menu(self):
         play_btn = Button("Play", "white", self.big_font, 0.5*self.max_width+self.max_width_start, 0.35*self.window_height, self.button, 0.212*self.max_width, 0.055*self.max_width)
