@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 
@@ -21,7 +22,6 @@ for i in range(len(polygon_points) - 1):
 lines.append([polygon_points[-1], polygon_points[0]])
 vertical_lines = []
 horizontal_lines = []
-
 if lines[0][0][0] == lines[0][1][0]:
     # first line is vertical
     ver_first = 0
@@ -40,12 +40,15 @@ print(horizontal_lines)
 
 # ball
 color = "red"
-ball = pygame.Rect(100, 10, 50, 50)
+pos_x = random.randrange(0, 1280)
+pos_y = random.randrange(0, 80)
+ball = pygame.Rect(pos_x, pos_y, 50, 50)
 direction = [-0.6, 0.8]
 speed = 5
 
 
 def collision():
+
     for line in horizontal_lines:
         x1, y1 = line[0][0], line[0][1]
         x2, y2 = line[1][0], line[1][1]
@@ -56,9 +59,11 @@ def collision():
             # from top
             if abs(ball.bottom - y1) < speed:
                 direction[1] *= -1
+                ball.bottom = y1 - 1
             # from bottom
             if abs(ball.top - y1) < speed:
                 direction[1] *= -1
+                ball.top = y1 + 1
 
     for line in vertical_lines:
         x1, y1 = line[0][0], line[0][1]
@@ -70,9 +75,11 @@ def collision():
             # from left
             if abs(ball.right - x1) < speed:
                 direction[0] *= -1
+                ball.right = x1 - 2
             # from right
             if abs(ball.left - x1) < speed:
                 direction[0] *= -1
+                ball.left = x1 + 2
 
 
 def move_ball():
@@ -87,6 +94,18 @@ def move_ball():
     ball.topleft = destination
 
 
+def draw():
+    # background
+    window.fill("orange")
+    # polygon
+    pygame.draw.polygon(window, "white", polygon_points)
+    # lines
+    for line in lines:
+        pygame.draw.line(window, "blue", line[0], line[1], 5)
+    # ball
+    pygame.draw.rect(window, "red", ball)
+
+
 # main loop
 run = True
 while run:
@@ -96,12 +115,9 @@ while run:
     # ball movement
     move_ball()
     collision()
+
     # draw
-    window.fill("orange")  # background
-    pygame.draw.polygon(window, "white", polygon_points)  # polygon
-    for line in lines:
-        pygame.draw.line(window, "blue", line[0], line[1], 5)  # ----------- lines
-    pygame.draw.rect(window, "red", ball)  # --------------------------- ball
+    draw()
     pygame.display.update()
 
     # events
