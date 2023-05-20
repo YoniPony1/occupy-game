@@ -81,6 +81,9 @@ class Game():
         self.window_height = 0.85*self.monitor_height
         pygame.display.set_caption("game")
         self.window = pygame.display.set_mode((self.window_width, self.window_height))
+
+        print(f"monitor: {self.monitor_width}, {self.monitor_height}")
+        print(f"og board size: {1425}, {969}")
         # sets max width
         if self.monitor_width/self.monitor_height > 1.78:
             self.max_width = (56/45)*self.monitor_height
@@ -100,6 +103,7 @@ class Game():
         self.ball = pygame.image.load("ball5.png")
 
         # vars
+        self.board_size = []
         self.board_area = []
         self.player_drawn = False
         self.field_init = False
@@ -124,6 +128,7 @@ class Game():
         pygame.draw.rect(self.window, "#4a1486", board)
         board_x_end, board_y_end = board_x+board_width-1, board_y+board_height-1
         self.board_area = [board_x, board_y, board_x + board_width - 1, board_y + board_height - 1]
+        self.board_size = [board_width, board_height]
 
         # outline
         outline_thick = round(0.0051*board_height)
@@ -168,10 +173,10 @@ class Game():
         self.back_button.draw()
 
     def balls(self):
-        ball1_size = round(0.8 * self.max_width / 25) - 1
+        ball1_size = self.board_size[0]/25 - 1
         if not self.ball_init:  # only when it is the first time (initiate)
-            self.ball1 = Ball(self.ball, (ball1_size, ball1_size), (400, 200), [0.5, 1], 10)
-            self.ball2 = Ball(self.ball, (ball1_size, ball1_size), (700, 500), [-1, -0.35], 10)
+            self.ball1 = Ball(self.ball, (ball1_size, ball1_size), (0.3*self.board_size[0], 0.14*self.board_size[0]), [0.5, 1], 0.007*self.board_size[0])
+            self.ball2 = Ball(self.ball, (ball1_size, ball1_size), (0.5*self.board_size[0], 0.35*self.board_size[0]), [-1, -0.35], 0.007*self.board_size[0])
             self.ball_init = True
         self.ball1.draw()
         self.ball2.draw()
@@ -280,10 +285,10 @@ class Game():
 
     def draw_lines(self):
         if self.in_field:
-            pygame.draw.line(self.window, "white", self.player_rect.center, self.points[-1], 10)
+            pygame.draw.line(self.window, "white", self.player_rect.center, self.points[-1], round(.007*self.board_size[0]))
 
             for i in range(len(self.points)-1):
-                pygame.draw.line(self.window, "white", self.points[i], self.points[i+1], 10)
+                pygame.draw.line(self.window, "white", self.points[i], self.points[i+1], round(0.007*self.board_size[0]))
 
     def main_loop(self):
         run = True
