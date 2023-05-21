@@ -108,6 +108,7 @@ class Game:
         self.ball = pygame.image.load("ball5.png")
 
         # vars
+        self.testing = False
         self.area1, self.area2 = [], []
         self.board_size = []
         self.board_area = []
@@ -634,13 +635,14 @@ class Game:
                 self.draw_occupied_area()
                 self.balls()
 
-
-                # testing
                 if self.field_lines1:
                     for line in self.field_lines1:
                         pygame.draw.line(self.window, "blue", line[0], line[1], 5)
-                for point in self.field_points:
-                    pygame.draw.circle(self.window, "red", point, 4)
+                # testing
+                if self.testing:
+
+                    for point in self.field_points:
+                        pygame.draw.circle(self.window, "red", point, 4)
                 # self.window.blit(self.maskimg2, self.player_rect)
                 # self.window.blit(self.maskimg, self.field_rect.topleft)
                 # pygame.draw.circle(self.window, "red", self.field_rect.topleft, 5)
