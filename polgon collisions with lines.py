@@ -40,11 +40,11 @@ print(horizontal_lines)
 
 # ball
 color = "red"
-pos_x = random.randrange(0, 1280)
+pos_x = random.randrange(0, 1220)
 pos_y = random.randrange(0, 80)
 ball = pygame.Rect(pos_x, pos_y, 50, 50)
 direction = [-0.6, 0.8]
-speed = 5
+speed = 10
 
 
 def collision():
@@ -57,11 +57,11 @@ def collision():
                 or (x1 <= ball.right <= x2 or x2 <= ball.right <= x1) \
                 or (ball.left <= x1 <= ball.right or ball.left <= x2 <= ball.right):
             # from top
-            if abs(ball.bottom - y1) < speed:
+            if abs(ball.bottom - y1) <= speed and direction[1] > 0:
                 direction[1] *= -1
                 ball.bottom = y1 - 1
             # from bottom
-            if abs(ball.top - y1) < speed:
+            if abs(ball.top - y1) <= speed and direction[1] < 0:
                 direction[1] *= -1
                 ball.top = y1 + 1
 
@@ -73,13 +73,13 @@ def collision():
                 or (y1 <= ball.bottom <= y2 or y2 <= ball.bottom <= y1) \
                 or (ball.top <= y1 <= ball.bottom or ball.top <= y2 <= ball.bottom):
             # from left
-            if abs(ball.right - x1) < speed:
+            if abs(ball.right - x1) <= speed and direction[0] > 0:
                 direction[0] *= -1
-                ball.right = x1 - 2
+                ball.right = x1 - 1
             # from right
-            if abs(ball.left - x1) < speed:
+            if abs(ball.left - x1) <= speed and direction[0] < 0:
                 direction[0] *= -1
-                ball.left = x1 + 2
+                ball.left = x1 + 1
 
 
 def move_ball():
@@ -101,7 +101,7 @@ def draw():
     pygame.draw.polygon(window, "white", polygon_points)
     # lines
     for line in lines:
-        pygame.draw.line(window, "blue", line[0], line[1], 5)
+        pygame.draw.line(window, "blue", line[0], line[1], 1)
     # ball
     pygame.draw.rect(window, "red", ball)
 
