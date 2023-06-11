@@ -1,5 +1,5 @@
 import pygame
-from organized import surface
+from ..organized import surface
 
 pygame.init()
 #surface = pygame.Surface((500, 500))
