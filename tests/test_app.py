@@ -1,9 +1,9 @@
 import pytest
 import pygame
-import organized
+from organized.display import Button
 
 pygame.init()
-#surface = pygame.Surface((500, 500))
+surface = pygame.Surface((500, 500))
 text = "click me"
 color = "black"
 font = pygame.font.SysFont("Ariel", 50)
@@ -14,5 +14,5 @@ width, height = 200, 200
 
 
 def test_button_class():
-    # btn = Button(surface, text, color, font, pos, image, width, height)
-    assert organized.surface != 0
+    btn = Button(surface, text, color, font, pos, image, width, height)
+    assert btn != 0
