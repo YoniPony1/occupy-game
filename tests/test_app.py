@@ -1,5 +1,5 @@
 import pygame
-from ..organized import surface
+import organized
 
 pygame.init()
 #surface = pygame.Surface((500, 500))
@@ -14,4 +14,4 @@ width, height = 200, 200
 
 def test_button_class():
     # btn = Button(surface, text, color, font, pos, image, width, height)
-    assert surface != 0
+    assert organized.surface != 0
