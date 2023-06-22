@@ -54,7 +54,7 @@ class Display:
         pygame.display.set_icon(self.icon)
         pygame.display.set_caption("game")
         # background
-        self.bg = pygame.transform.scale(pygame.image.load("assets/background.png").convert(), self.screen.get_size())
+        self.bg = pygame.transform.scale(pygame.image.load("assets/Purple_Background.png").convert_alpha(), self.screen.get_size())
         self.scaled_bg = self.bg.copy()
         # frame
         self.frame = pygame.Rect((0, 0), self.screen.get_size())
@@ -162,3 +162,4 @@ class Display:
     def draw(self):
         self.screen.blit(self.scaled_bg, (0, 0,))  # ----------- background
         pygame.draw.rect(self.screen, "red", self.frame, 2)  # frame
+
