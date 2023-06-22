@@ -49,12 +49,13 @@ class Display:
             screen_height = (1 / self.ratio) * screen_width
         # screen
         self.screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
-        self.icon = pygame.image.load("assets/icon.png").convert()
+        self.icon = pygame.image.load("assets/icon.png").convert_alpha()
         # icon
         pygame.display.set_icon(self.icon)
         pygame.display.set_caption("game")
         # background
         self.bg = pygame.transform.scale(pygame.image.load("assets/background.png").convert(), self.screen.get_size())
+        self.scaled_bg = self.bg.copy()
         # frame
         self.frame = pygame.Rect((0, 0), self.screen.get_size())
         # -------------
@@ -62,7 +63,6 @@ class Display:
         # VARIABLES
         # fonts
         self.font = pygame.font.SysFont("Consolas", 0, bold=True)
-
         # fullscreen
         self.restore_down_size = self.screen.get_size()
         self.fullscreen = False
@@ -79,7 +79,7 @@ class Display:
             self.screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
             self.restore_down_size = (width, height)
         # adjust background
-        self.bg = pygame.transform.scale(self.bg, self.screen.get_size())
+        self.scaled_bg = pygame.transform.scale(self.bg, self.screen.get_size())
         # adjust frame
         frame_ratio = self.ratio
         w, h = self.screen.get_size()
@@ -160,5 +160,5 @@ class Display:
         #     self.game = True
 
     def draw(self):
-        self.screen.blit(self.bg, (0, 0,))  # ----------- background
+        self.screen.blit(self.scaled_bg, (0, 0,))  # ----------- background
         pygame.draw.rect(self.screen, "red", self.frame, 2)  # frame
