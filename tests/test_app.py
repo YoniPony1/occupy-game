@@ -1,6 +1,6 @@
 import pytest
 import pygame
-from organized.display import Button
+from Game.display import Button
 
 pygame.init()
 surface = pygame.Surface((500, 500))
