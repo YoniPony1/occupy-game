@@ -23,12 +23,12 @@ class Main:
             # frames per sec
             self.clock.tick(60)
 
-            # draw
+            # draw display
             self.display.toggle_fullscreen(events)
             self.display.draw()
 
             # game states
-            run = self.states.states_manger(self.display.screen.get_size())
+            run = self.states.states_manger()
 
             pygame.display.update()
 
@@ -36,6 +36,7 @@ class Main:
             for event in events:
                 if event.type == pygame.QUIT:
                     run = False
+                # resize display
                 if event.type == pygame.VIDEORESIZE:
                     self.display.screen_resized(event.w, event.h)
 

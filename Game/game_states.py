@@ -24,12 +24,19 @@ class GameStates:
         self.btns_text = ["Play", "Levels", "Options", "Quit"]
 
         # options vars
-        self.test = pygame.image.load("assets/test2.jpg").convert_alpha()
-        self.mask_img = pygame.image.load("assets/test1.png").convert_alpha()
+        # self.test = pygame.image.load("assets/test2.jpg").convert_alpha()
+        # self.mask_img = pygame.image.load("assets/test1.png").convert_alpha()
+        self.on_img = pygame.image.load("assets/ON.png").convert_alpha()
+        self.OFF_img = pygame.image.load("assets/OFF.png").convert_alpha()
 
-    def states_manger(self, screen_scale):
+    def states_manger(self):
         run = True
-        s_w, s_h = screen_scale
+        # update frame vars
+        self.fx = self.display.frame.x
+        self.fy = self.display.frame.y
+        self.fw = self.display.frame.width
+        self.fh = self.display.frame.height
+
         if self.state == 0:
             run = self.main_menu()
         elif self.state == 1:
@@ -125,6 +132,9 @@ class GameStates:
             self.state = 0
 
     def options(self):
+        # developer mode
+        # on/off switch
+
         # button
         font_size = int(0.04 * self.display.frame.height)
         font = pygame.font.SysFont("Consolas", font_size, bold=True)
@@ -138,13 +148,14 @@ class GameStates:
         if btn.clicked():
             self.state = 0
 
+        """
         # test
         board_rect = pygame.Rect(self.fx+0.3*self.fw / 2,  self.fy + 0.1 * self.fh / 2, 0.7 * self.fw, 0.7 * self.fh)
         self.scaled_bg = pygame.transform.scale(self.test, (0.7 * self.fw, 0.7 * self.fh))
         self.scaled_img = pygame.transform.scale(self.mask_img, (0.7 * self.fw, 0.7 * self.fh))
         self.scaled_bg.blit(self.scaled_img, (0, 0))
-        self.scaled_bg.set_colorkey("black")
+        self.scaled_bg.set_colorkey("black")"""
 
         # draw
         btn.draw()
-        self.display.screen.blit(self.scaled_bg, board_rect.topleft)
+        #self.display.screen.blit(self.scaled_bg, board_rect.topleft)

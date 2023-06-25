@@ -117,48 +117,6 @@ class Display:
                         self.fullscreen = False
                         self.screen = pygame.display.set_mode(self.restore_down_size, pygame.RESIZABLE)
 
-    def set_main_menu(self):
-
-        # buttons
-        # -------
-        color = "white"
-        font_size = int(0.05 * self.frame.height)
-        font = pygame.font.SysFont("Consolas", font_size, bold=True)
-        width, height = 0.26 * self.frame.width, 0.1 * self.frame.height
-        h = 0.1
-        gap = 0.04
-
-        # self.buttons["play"] = {"text": "Play", "color": None, "font": None, "pos": "",
-        #                         "image": "", "width": "", "height": "", "align": "center"}
-        # self.buttons["Levels"] = {"text": "Levels", "color": "", "font": "", "pos": "",
-        #                           "image": "", "width": "", "height": "", "align": "center"}
-        # self.buttons["Settings"] = {"text": "Settings", "color": "", "font": "", "pos": "",
-        #                             "image": "", "width": "", "height": "", "align": "center"}
-        # self.buttons["Quit"] = {"text": "Quit", "color": "", "font": "", "pos": "",
-        #                         "image": "", "width": "", "height": "", "align": "center"}
-
-        self.btns_args["play"] = {"text": "Play"}
-        self.btns_args["Levels"] = {"text": "Levels"}
-        self.btns_args["Settings"] = {"text": "Settings"}
-        self.btns_args["Quit"] = {"text": "Quit"}
-
-        positions = [(self.frame.x + 0.5 * self.frame.width, self.frame.y + 0.29 * self.frame.height)]
-        for i in range(len(self.btns_args) - 1):
-            positions.append((positions[i][0], positions[i][1] + (h + gap) * self.frame.height))
-        j = 0
-        self.buttons = []
-        for x in self.btns_args:
-            self.btns_args[x]["pos"] = positions[j]
-            self.buttons.append(Button(self.screen, self.btns_args[x]["text"], color, font,
-                                       self.btns_args[x]["pos"], self.button_img, width, height))
-            self.buttons[j].draw()
-
-            j += 1
-
-        # if play_btn.clicked():
-        #     self.main_menu = False
-        #     self.game = True
-
     def draw(self):
         self.screen.blit(self.scaled_bg, (0, 0,))  # ----------- background
         pygame.draw.rect(self.screen, "red", self.frame, 2)  # frame
