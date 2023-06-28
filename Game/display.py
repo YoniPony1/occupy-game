@@ -3,6 +3,19 @@ import pygame
 pygame.init()
 
 
+# text class
+class Text:
+    def __init__(self, surface, pos, text, color, font_family, font_size, bold=False):
+        font = pygame.font.SysFont(font_family, font_size, bold=bold)
+        self.text = font.render(text, True, color)
+        self.text_rect = self.text.get_rect()
+        self.text_rect.center = pos
+        self.surface = surface
+
+    def draw(self):
+        self.surface.blit(self.text, self.text_rect)
+
+
 # button class
 class Button:
     def __init__(self, surface, text, color, font, pos, image, width, height, align="center"):
@@ -32,9 +45,35 @@ class Button:
         self.screen.blit(self.text, self.text_rect)
 
 
+# on-off switch class
+class OnOff:
+    def __init__(self, surface, on_img, off_img, width, height, pos, if_on, events):
+        self.screen = surface
+        self.ON = pygame.transform.scale(on_img, (width, height))
+        self.OFF = pygame.transform.scale(off_img, (width, height))
+        self.rect = self.ON.get_rect()
+        self.rect.center = pos
+        self.if_on = if_on
+        self.events = events
+
+    def draw(self):
+        if self.if_on:
+            self.screen.blit(self.ON, self.rect)
+        else:
+            self.screen.blit(self.OFF, self.rect)
+
+    def if_clicked(self):
+        pos = pygame.mouse.get_pos()
+        for event in self.events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+
+                if pygame.mouse.get_pressed()[0] and self.rect.collidepoint(pos):
+                    return not self.if_on
+        return self.if_on
+
+
 # display class
 class Display:
-
     def __init__(self):
         # SCREEN INIT
         self.ratio = 3 / 2
@@ -120,4 +159,3 @@ class Display:
     def draw(self):
         self.screen.blit(self.scaled_bg, (0, 0,))  # ----------- background
         pygame.draw.rect(self.screen, "red", self.frame, 2)  # frame
-

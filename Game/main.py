@@ -28,7 +28,7 @@ class Main:
             self.display.draw()
 
             # game states
-            run = self.states.states_manger()
+            run = self.states.states_manger(events)
 
             pygame.display.update()
 

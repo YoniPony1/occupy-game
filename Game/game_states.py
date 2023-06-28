@@ -1,5 +1,7 @@
 import pygame
 from display import Button
+from display import OnOff
+
 
 pygame.init()
 
@@ -26,10 +28,11 @@ class GameStates:
         # options vars
         # self.test = pygame.image.load("assets/test2.jpg").convert_alpha()
         # self.mask_img = pygame.image.load("assets/test1.png").convert_alpha()
-        self.on_img = pygame.image.load("assets/ON.png").convert_alpha()
+        self.ON_img = pygame.image.load("assets/ON.png").convert_alpha()
         self.OFF_img = pygame.image.load("assets/OFF.png").convert_alpha()
+        self.if_on = False
 
-    def states_manger(self):
+    def states_manger(self, events):
         run = True
         # update frame vars
         self.fx = self.display.frame.x
@@ -44,7 +47,7 @@ class GameStates:
         elif self.state == 2:
             self.levels()
         elif self.state == 3:
-            self.options()
+            self.options(events)
 
         return run
 
@@ -86,24 +89,20 @@ class GameStates:
         return True
 
     def game(self):
-        # temp
-        w, h = 0.6 * self.fw, 0.3 * self.fh
-        rect = pygame.Rect(0, 0, w, h)
-        Rx, Ry = self.fx + 0.5 * self.fw, self.fy + 0.3 * self.fh
-        rect.center = (Rx, Ry)
-        font_size = round(0.15 * self.fh)
-        font = pygame.font.SysFont("Ariel", font_size)
-        text = font.render("game", True, "#689859")
-        text_rect = text.get_rect()
-        text_rect.center = (Rx, Ry)
+        # board
+        bg = pygame.transform.scale(pygame.image.load("assets/wave.png").convert_alpha(), (self.fw, self.fh))
+        overlay = pygame.transform.scale(pygame.image.load("assets/overlay.jpg").convert_alpha(), (self.fw, self.fh))
+        topleft = (self.fx, self.fy)
+        bg_rect = bg.get_rect(topleft=topleft)
+        overlay_rect = overlay.get_rect(topleft=topleft)
 
         # button
         font_size = int(0.04 * self.fh)
         font = pygame.font.SysFont("Consolas", font_size, bold=True)
-        x, y = self.fx + 0.5 * self.fw, self.fy + 0.8 * self.fh
+        x, y = self.fx + 0.5 * self.fw, self.fy + 0.9 * self.fh
         width = 0.22 * self.fw
         height = 0.072 * self.fh
-        btn = Button(self.display.screen, "Back", "white", font, (x, y), self.button_img, width, height)
+        btn = Button(self.display.screen, "Main", "white", font, (x, y), self.button_img, width, height)
 
         # clicked
         if btn.clicked():
@@ -111,8 +110,6 @@ class GameStates:
 
         # draw
         btn.draw()
-        pygame.draw.rect(self.display.screen, "#ffff80", rect, border_radius=10)
-        self.display.screen.blit(text, text_rect)
 
     def levels(self):
         # button
@@ -131,9 +128,18 @@ class GameStates:
         if btn.clicked():
             self.state = 0
 
-    def options(self):
+    def options(self, events):
         # developer mode
-        # on/off switch
+        # -text
+        font = pygame.font.SysFont("Ariel", round(0.06 * self.fh))
+        text = font.render("Developer", True, "white")
+        text_rect = text.get_rect()
+        text_rect.top = self.fy + 0.2 * self.fh
+        text_rect.right = self.fx + 0.45 * self.fw
+        # -switch
+        pos = (self.fx + 0.55 * self.fw, self.fy + 0.2 * self.fh)
+        switch = OnOff(self.display.screen, self.ON_img, self.OFF_img, 0.15 * self.fw, 0.08 * self.fh, pos, self.if_on, events)
+        self.if_on = switch.if_clicked()
 
         # button
         font_size = int(0.04 * self.display.frame.height)
@@ -157,5 +163,8 @@ class GameStates:
         self.scaled_bg.set_colorkey("black")"""
 
         # draw
+        self.display.screen.blit(text, text_rect)
+        switch.draw()
         btn.draw()
-        #self.display.screen.blit(self.scaled_bg, board_rect.topleft)
+
+        # self.display.screen.blit(self.scaled_bg, board_rect.topleft)
