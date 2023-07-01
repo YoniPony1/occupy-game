@@ -108,7 +108,6 @@ class Display:
         # buttons
         self.btns_args = {}
         self.buttons = []
-        # global
         # ------------
 
     def screen_resized(self, width, height):
@@ -156,6 +155,7 @@ class Display:
                         self.fullscreen = False
                         self.screen = pygame.display.set_mode(self.restore_down_size, pygame.RESIZABLE)
 
-    def draw(self):
+    def draw(self, developer):
         self.screen.blit(self.scaled_bg, (0, 0,))  # ----------- background
-        pygame.draw.rect(self.screen, "red", self.frame, 2)  # frame
+        if developer:
+            pygame.draw.rect(self.screen, "blue", self.frame, 4)  # frame

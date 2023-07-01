@@ -14,6 +14,9 @@ class Main:
         self.display = Display()
         self.states = GameStates(self.display)
 
+        # developer mode
+        self.developer = False
+
     def main_loop(self):
         run = True
         while run:
@@ -25,10 +28,10 @@ class Main:
 
             # draw display
             self.display.toggle_fullscreen(events)
-            self.display.draw()
+            self.display.draw(self.developer)
 
             # game states
-            run = self.states.states_manger(events)
+            run, self.developer = self.states.states_manger(events, self.developer)
 
             pygame.display.update()
 
