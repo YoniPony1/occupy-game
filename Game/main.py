@@ -37,6 +37,7 @@ class Main:
 
             # events
             for event in events:
+                # quit
                 if event.type == pygame.QUIT:
                     run = False
                 # resize display
